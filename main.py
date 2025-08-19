@@ -54,6 +54,43 @@ def main():
 
                     send_response(response, f)
 
+                if method == "textDocument/didChange":
+                    file_contents = (
+                        parsed["params"]["contentChanges"][0]["text"]
+                        .lower()
+                        .split("\n")
+                    )
+                    diagnostics = []
+                    for index, line in enumerate(file_contents):
+                        if "hello" in line.lower():
+                            offset = line.find("hello")
+                            diagnostics.append(
+                                {
+                                    "message": "bad!!!",
+                                    "severity": 1,
+                                    "source": "recsand-lsp",
+                                    "range": {
+                                        "start": {"character": offset, "line": index},
+                                        "end": {
+                                            "line": index,
+                                            "character": offset + len("hello"),
+                                        },
+                                    },
+                                }
+                            )
+
+                    uri = parsed["params"]["textDocument"]["uri"]
+                    version = parsed["params"]["textDocument"]["version"]
+                    response = {
+                        "jsonrpc": "2.0",
+                        "method": "textDocument/publishDiagnostics",
+                        "params": {
+                            "uri": uri,
+                            "version": version,
+                            "diagnostics": diagnostics,
+                        },
+                    }
+                    send_response(response, f)
                 if parsed["method"] == "exit":
                     f.write("exit bye")
                     break
@@ -70,7 +107,12 @@ def main():
                         "id": id,
                         "result": {
                             "capabilities": {
-                                # "diagnosticProvider": {},
+                                "diagnosticProvider": {
+                                    "identifier": "recsand-lsp",
+                                    "interFileDependencies": False,
+                                    "workDoneProgress": False,
+                                    "workspaceDiagnostics": False,
+                                },
                                 "textDocumentSync": {
                                     "change": 1,
                                     "openClose": True,
