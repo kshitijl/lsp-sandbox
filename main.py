@@ -1,6 +1,5 @@
 import json
 import sys
-import time
 
 
 def main():
@@ -47,7 +46,7 @@ def main():
                         "result": {
                             "contents": {
                                 "kind": "markdown",
-                                "value": "# HELLO WORLD \n## small small \nThis is *emphasized* text",
+                                "value": "# Do programming!\nIt's fun.\n## Do it\nAll day *every* day",
                             }
                         },
                     }
@@ -62,8 +61,9 @@ def main():
                     )
                     diagnostics = []
                     for index, line in enumerate(file_contents):
-                        if "hello" in line.lower():
-                            offset = line.find("hello")
+                        bad_word = "oops"
+                        if bad_word in line.lower():
+                            offset = line.find(bad_word)
                             diagnostics.append(
                                 {
                                     "message": "bad!!!",
@@ -73,7 +73,7 @@ def main():
                                         "start": {"character": offset, "line": index},
                                         "end": {
                                             "line": index,
-                                            "character": offset + len("hello"),
+                                            "character": offset + len(bad_word),
                                         },
                                     },
                                 }
