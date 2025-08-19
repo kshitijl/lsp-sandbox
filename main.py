@@ -54,15 +54,31 @@ def main():
 
                     send_response(response, f)
 
-                if parsed["method"] == "shutdown":
-                    f.write("shutdown bye")
+                if parsed["method"] == "exit":
+                    f.write("exit bye")
                     break
+
+                if parsed["method"] == "shutdown":
+                    id = parsed["id"]
+                    response = {"jsonrpc": "2.0", "id": id, "result": None}
+
+                    send_response(response, f)
                 if parsed["method"] == "initialize":
                     id = parsed["id"]
                     response = {
                         "jsonrpc": "2.0",
                         "id": id,
-                        "result": {"capabilities": {"hoverProvider": {}}},
+                        "result": {
+                            "capabilities": {
+                                # "diagnosticProvider": {},
+                                "textDocumentSync": {
+                                    "change": 1,
+                                    "openClose": True,
+                                    "willSave": False,
+                                },
+                                "hoverProvider": {},
+                            }
+                        },
                     }
 
                     send_response(response, f)
