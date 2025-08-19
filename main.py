@@ -34,8 +34,55 @@ def main():
             f.write(content)
             f.flush()
 
+            parsed = json.loads(content)
+
+            if "method" in parsed:
+                method = parsed["method"]
+
+                if method == "textDocument/hover":
+                    id = parsed["id"]
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "contents": {
+                                "kind": "markdown",
+                                "value": "# HELLO WORLD \n## small small \nThis is *emphasized* text",
+                            }
+                        },
+                    }
+
+                    send_response(response, f)
+
+                if parsed["method"] == "shutdown":
+                    f.write("shutdown bye")
+                    break
+                if parsed["method"] == "initialize":
+                    id = parsed["id"]
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {"capabilities": {"hoverProvider": {}}},
+                    }
+
+                    send_response(response, f)
+
+            f.flush()
+
         f.write("done bye\n")
         f.flush()
+
+
+def send_response(response: dict, f):
+    response_json = json.dumps(response)
+    response_length = len(response_json)
+    actual_response = "Content-Length: {}\r\n\r\n{}".format(
+        response_length, response_json
+    )
+    f.write("sending back {}\n".format(actual_response))
+    sys.stdout.write(actual_response)
+    # sys.stdout.write(actual_response)
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
